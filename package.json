@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/SPFlores/bamazon#readme",
   "dependencies": {
-    "inquirer": "^6.3.1"
+    "inquirer": "^6.3.1",
+    "mysql2": "^1.6.5"
   }
 }
