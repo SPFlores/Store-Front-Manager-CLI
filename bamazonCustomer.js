@@ -35,13 +35,14 @@ const buyAThing = _ => {
     }
   ])
     .then(({ item, quant }) => {
-      // console.log(item_id)
-      // console.log(quant)
       db.query(`SELECT * FROM products WHERE ?`,
         { item_id: item }, (e, [{ product_name, stock_quantity, price }]) => {
           let stock = stock_quantity
-          if (stock < quant) {
-            console.log(`We're sorry, there isn't enough ${product_name} in stock for you to purchace that quantity. The maximum you  can purchase is ${stock}.`)
+          if (stock === 0) {
+            console.log(`We're sorry, ${product_name} is not currently in stock.`)
+            buySomeSchtuff()
+          } else if (stock < quant && stock > 0) {
+            console.log(`We're sorry, there isn't enough ${product_name} in stock for you to purchace that quantity. The maximum you can purchase is ${stock}`)
             prompt({
               type: 'confirm',
               name: 'moreOrLess',
@@ -59,10 +60,13 @@ const buyAThing = _ => {
                         { stock_quantity: (stock - quantity) }, { item_id: item }
                       ], e => {
                         if (e) throw e
-                        console.log(`Congratulations, you have purchased ${quantity} of the ${product_name} at ${price} each for a total of $${quantity * price}.00.`)
+                        console.log(`Congratulations, you have purchased ${quantity} of the ${product_name} at ${price} each for a total of $${quantity * price}.`)
+                        buySomeSchtuff()
                       })
                     })
                     .catch(e => console.log(e))
+                } else {
+                  buySomeSchtuff()
                 }
               })
               .catch(e => console.log(e))
@@ -71,10 +75,10 @@ const buyAThing = _ => {
               { stock_quantity: (stock - quant) }, { item_id: item }
             ], e => {
               if (e) throw e
-              console.log(`Congratulations, you have purchased ${quant} of the ${product_name} at ${price} each for a total of $${quant * price}.00.`)
+              console.log(`Congratulations, you have purchased ${quant} of the ${product_name} at ${price} each for a total of $${quant * price}.`)
+              buySomeSchtuff()
             })
           }
-
         }
       )
     })
@@ -86,25 +90,23 @@ const buySomeSchtuff = _ => {
     type: 'list',
     name: 'action',
     message: 'What would you like to do?',
-    choices: ['View', 'Purchase', 'Sell', 'Exit']
+    choices: ['View All Products', 'Purchase', 'Exit']
   })
     .then(({ action }) => {
       switch (action) {
         case 'View':
           getItems()
             .then(item => {
-              item.forEach(({ item_id, product_name, price }) => console.log(`
-            ----------
-            Item ${item_id} is ${product_name}.
-            Item cost is $${price} per unit.`))
+              item.forEach(({ item_id, product_name, price, stock_quantity }) => console.log(`      --------------------
+      Item ${item_id} is ${product_name}.
+      Item cost is $${price} per unit.
+      Currently there is ${stock_quantity} in stock.`))
               buySomeSchtuff()
             })
             .catch(e => console.log(e))
           break
         case 'Purchase':
           buyAThing()
-          break
-        case 'Sell':
           break
         case 'Exit':
           process.exit()
