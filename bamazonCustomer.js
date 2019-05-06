@@ -8,7 +8,7 @@ const db = createConnection({
   database: 'bamazon'
 })
 
-async function getItems() {
+async function getItems () {
   let response = await new Promise((resolve, reject) => {
     db.query(`SELECT * FROM products`, (e, r) => {
       if (e) {
