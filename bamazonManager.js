@@ -1,12 +1,7 @@
 const { prompt } = require('inquirer')
 const { createConnection } = require('mysql2')
 
-const db = createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'LMUlions141!',
-  database: 'bamazon'
-})
+const db = require('./passwords')
 
 async function getItems() {
   let response = await new Promise((resolve, reject) => {
