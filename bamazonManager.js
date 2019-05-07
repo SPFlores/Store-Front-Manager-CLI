@@ -35,21 +35,65 @@ async function viewLow() {
 }
 
 const addInventory = _ => {
+  prompt({
+    type: 'input',
+    name: 'item',
+    message: 'What is the ID of the product that you would like to add inventory to?'
+  })
+    .then(({ item }) => {
+      db.query(`SELECT * FROM products WHERE ?`, { item_id: item }, (e, [{ product_name, stock_quantity }]) => {
+        if (e) throw e
+        prompt({
+          type: 'number',
+          name: 'amount',
+          message: `How many ${product_name} would you like to add?`
+        })
+          .then(({ amount }) => {
+            db.query(`UPDATE products SET ? WHERE ?`, [
+              { stock_quantity: stock_quantity + amount }, { item_id: item }
+            ], e => {
+              if (e) throw e
+              console.log(`You have successfully added ${amount} ${product_name}. The total quantity is now ${stock_quantity + amount}.`)
+              buySomeSchtuff()
+            })
+          })
+          .catch(e => console.log(e))
+      })
+    })
+    .catch(e => console.log(e))
+}
+
+const addNewThing = _ => {
   prompt([
     {
       type: 'input',
-      name: 'item',
-      message: 'What is the ID of the product that you would like to add inventory to?'
+      name: 'product_name',
+      message: 'What is the name of the product that you would like to add?'
+    },
+    {
+      type: 'input',
+      name: 'department_name',
+      message: 'To what department does it belong?'
     },
     {
       type: 'number',
-      name: 'amount',
-      message: 'How much of the product would you like to add?'
+      name: 'price',
+      message: 'How much does one item cost?'
+    },
+    {
+      type: 'number',
+      name: 'stock_quantity',
+      message: 'How many of this item would you like to add?'
     }
   ])
-    .then(({ input, number }) => {
-      db.query(`SELECT `)
+    .then(item => {
+      db.query('INSERT INTO products SET ?', item, e => {
+        if (e) throw e
+        console.log(`You have successfully added ${item.product_name} to the store. There are currently ${item.stock_quantity} units in stock.`)
+        buySomeSchtuff()
+      })
     })
+    .catch(e => console.log(e))
 }
 
 const buySomeSchtuff = _ => {
@@ -88,6 +132,7 @@ const buySomeSchtuff = _ => {
           break
         case 'Add New Product':
           console.log('add new products')
+          addNewThing()
           break
         case 'Exit':
           process.exit()
