@@ -46,7 +46,7 @@ const buyAThing = _ => {
             if (stock <= 0) {
               console.log(`We're sorry, ${product_name} is not currently in stock.`)
               buySomeSchtuff()
-            } else if (stock < quant && stock > 0) {
+            } else if ((stock <= quant) && stock > 0) {
               console.log(`We're sorry, there isn't enough ${product_name} in stock for you to purchace that quantity. The maximum you can purchase is ${stock}.`)
               prompt({
                 type: 'confirm',
